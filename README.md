@@ -32,11 +32,12 @@ the liveness and readiness probes, and the `openclaw:` check verb
 
 ## Layout
 
-- `charly.yml` — the project manifest: the `cachyos` namespace import, the
-  `discover:` tree, the inline `check-openclaw-pod` bed.
+- `charly.yml` — the project manifest: the `cachyos` namespace import, `defaults`,
+  the `discover:` tree and the inline `check-openclaw-pod` bed.
 - `box/openclaw/charly.yml` — the gateway image and its `skill:` entity.
-- `candy/openclaw/charly.yml` + `package.json` — the gateway layer (the npm pin)
-  and its `skill:` entity.
+- `candy/openclaw/charly.yml` + `package.json` + `openclaw.service` — the gateway
+  layer (the npm pin, the service it runs, and a host systemd unit reference) and
+  its `skill:` entity.
 - `.github/workflows/tag-on-merge.yml` — the org tag-on-merge caller.
 - `AGENTS.md` — the repo's agent guidance; `README.md` — this overview.
 

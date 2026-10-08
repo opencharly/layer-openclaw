@@ -1,0 +1,144 @@
+openclaw:
+    candy:
+        description: |
+            Headless OpenClaw AI gateway service on port 18789 (OpenClaw 2.0,
+            npm openclaw@2026.9.8 — the current latest stable). Installs the openclaw npm package globally
+            (package.json -> npm install -g) so the gateway binary lands at
+            ~/.npm-global/bin/openclaw, then runs it as the supervised
+            `openclaw` service (`openclaw gateway --port 18789
+            --allow-unconfigured --bind loopback` — loopback bind needs no
+            auth and matches the socat relay; unconfigured lets the headless
+            gateway start before any operator setup). socat
+            relays the loopback-bound gateway onto the container interface
+            and a `data` volume persists ~/.openclaw. Binary presence, the
+            supervised service, the reachable port, and the gateway's own
+            /healthz liveness endpoint are all verifiable.
+        require:
+            - '@github.com/opencharly/layer-nodejs:v2026.272.0322'
+            - '@github.com/opencharly/layer-socat:v2026.272.0422'
+            - '@github.com/opencharly/layer-supervisord:v2026.271.1817'
+        env:
+            NODE_ENV: "production"
+        port:
+            - 18789
+        port_relay:
+            - 18789
+        volume:
+            - name: data
+              path: "~/.openclaw"
+        alias:
+            - name: openclaw
+              command: openclaw
+        service:
+            - name: openclaw
+              exec: "%(ENV_HOME)s/.npm-global/bin/openclaw gateway --port 18789 --allow-unconfigured --bind loopback"
+              restart: always
+              enable: true
+              scope: system
+        plan:
+            - check: the openclaw gateway binary is installed into the npm global bin
+              file:
+                file: ${HOME}/.npm-global/bin/openclaw
+                exists: true
+            - check: the openclaw gateway reports the exact pinned package version
+              exit_status: 0
+              stdout:
+                - matches: "2026\\.9\\.8"
+              command: ${HOME}/.npm-global/bin/openclaw --version
+            - check: the in-image Node satisfies openclaw 2026.9.8's engine range (>=24.16.0 <25 OR >=26.1.0; the floor moved at 2026.9.3 and excludes node 22 and 25.x)
+              exit_status: 0
+              stdout:
+                - matches: "v(24\\.(1[6-9]|[2-9][0-9])\\.|26\\.([1-9][0-9]*)\\.|2[7-9]\\.|[3-9][0-9]*\\.|[1-9][0-9]{2,}\\.)"
+              command: node --version
+            - check: the running gateway's /healthz liveness endpoint responds 200 (OpenClaw 2.0 container probe)
+              context:
+                - runtime
+              http:
+                http: http://127.0.0.1:${HOST_PORT:18789}/healthz
+                status: 200
+            - check: the openclaw gateway runs as a supervised service
+              context:
+                - runtime
+              service:
+                service: openclaw
+                running: true
+            - check: the running gateway accepts a TCP connection on its published port 18789
+              timeout: 5s
+              context:
+                - runtime
+              addr:
+                addr: 127.0.0.1:${HOST_PORT:18789}
+                reachable: true
+
+openclaw-layer-skill:
+    skill:
+        name: openclaw-layer
+        family: openclaw
+        owner: openclaw
+        description: |-
+            OpenClaw AI gateway service on port 18789 via npm with persistent data
+            (OpenClaw 2.0, npm openclaw@2026.9.8). Use when working with the OpenClaw gateway
+            layer, AI gateway configuration, or model routing.
+        content: |-
+            # openclaw — AI gateway service
+
+            ## Candy Properties
+
+            | Property | Value |
+            |----------|-------|
+            | Dependencies | `nodejs`, `socat`, `supervisord` |
+            | Ports | 18789 |
+            | Port relay | 18789 (eth0 -> loopback) |
+            | Volumes | `data` -> `~/.openclaw` |
+            | Aliases | `openclaw` -> `openclaw` |
+            | Service | `openclaw` (supervisord) |
+            | Install files | `package.json` |
+            | Home repo | `opencharly/openclaw` (`candy/openclaw`) |
+
+            ## Environment Variables
+
+            | Variable | Value |
+            |----------|-------|
+            | `NODE_ENV` | `production` |
+
+            ## The package pin and the engine floor
+
+            The npm pin lives in `package.json` (`openclaw@2026.9.8`) and the candy's own plan asserts
+            it, together with the engine range the package declares — `>=24.16.0 <25 || >=26.1.0`. The
+            floor moved at 2026.9.3 and excludes node 22 and node 25.x, so the check fails on a base
+            whose node is outside the range instead of running an unsupported runtime. The Arch
+            `nodejs` package in the CachyOS base satisfies it.
+
+            ## Usage
+
+            ```yaml
+            # box charly.yml
+            openclaw:
+              candy:
+                base: cachyos
+                candy:
+                  - openclaw
+            ```
+
+            ```bash
+            charly alias install openclaw    # install host 'openclaw' command
+            openclaw config                  # uses the alias
+            ```
+
+            ## Used In Boxes
+
+            - `/charly-openclaw:openclaw` — the family's gateway image (this layer plus the `openclaw:` check verb)
+
+            ## Port Relay
+
+            The gateway binds to `127.0.0.1:18789` (loopback only). A socat relay forwards from the
+            container's network interface to loopback, so every connection appears as loopback to the
+            gateway and OpenClaw's `allowedOrigins` requirement for the Control UI never applies. Same
+            pattern as the `chrome` candy (CDP on port 9222).
+
+            ## Related
+
+            - `/charly-openclaw:openclaw` — the box that composes this layer
+            - `/charly-check:openclaw` — the `openclaw:` check verb, served by `opencharly/plugin-openclaw`
+            - `/charly-coder:nodejs`, `/charly-infrastructure:socat`, `/charly-infrastructure:supervisord` — this layer's dependencies
+

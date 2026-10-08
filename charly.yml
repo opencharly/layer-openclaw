@@ -1,0 +1,76 @@
+#  opencharly/openclaw — the OpenClaw family.
+#
+#  ONE repo owns the family: the gateway image (box/openclaw), the gateway layer
+#  candy (candy/openclaw, this repo's successor to opencharly/pod-openclaw) and
+#  the disposable R10 bed that proves them (check-openclaw-pod, inline below).
+#  The `openclaw:` CHECK VERB is a separate concern and stays in its own repo,
+#  opencharly/plugin-openclaw; the image composes that plugin candy so this
+#  repo's bed can author `openclaw:` steps.
+#
+#  The `cachyos` namespace is imported for the box's base and builder, exactly as
+#  distro-cachyos reaches `arch` — one-directional, and the import is what makes
+#  this repo validate and build on its own (a family repo cannot skip it).
+repo: github.com/opencharly/openclaw
+defaults:
+    platform:
+        - linux/amd64
+    tag: auto
+    registry: ghcr.io/opencharly
+    build:
+        - pac
+    # The base is CachyOS, so the builders come from the arch stack INSIDE the
+    # cachyos namespace — the nested form is the one that resolves.
+    builder:
+        npm: cachyos.arch.arch-builder
+        pixi: cachyos.arch.arch-builder
+import:
+    # Pinned to the tag that dropped the retired openclaw pins from the CachyOS
+    # refs list (distro-cachyos v2026.281.1001). Those pins kept pod-openclaw's
+    # `openclaw` candy inside this project's closure, and a remote candy of that
+    # name shadows this repo's local one — the resolver fails closed with
+    # `local candy "openclaw" shadows remote candy "github.com/opencharly/pod-openclaw"`.
+    # An earlier tag reproduces that error; this one is measured both ways.
+    - cachyos: '@github.com/opencharly/distro-cachyos:v2026.281.1001'
+discover:
+    - path: candy
+      recursive: true
+    - path: box
+      recursive: true
+# check-openclaw-pod — the family's R10 witness. It builds the gateway image on
+# the real CachyOS base and deploys it as a disposable pod, then runs the
+# composed candies' baked checks (the npm binary, the pinned package version,
+# the engine floor, the supervised service, the published port and /healthz)
+# plus the plugin's own verb steps below.
+check-openclaw-pod:
+    pod:
+        image: openclaw
+        disposable: true
+        lifecycle: dev
+        description: Sole build+runtime witness for the OpenClaw family — builds the gateway image on the CachyOS (Arch) base (the npm install of the pinned package, the nodejs/socat/supervisord stack) and deploys it as a disposable pod. Runs the inherited gateway checks — the binary under ~/.npm-global/bin, the pinned version, the engine range, the supervised service, the :18789 TCP reachability and /healthz — plus the plugin-openclaw verb's own live dispatch (health, ready and the in-venue model status against the running gateway).
+        plan:
+            - check: the openclaw verb reaches the gateway's /healthz liveness endpoint on the running gateway
+              id: openclaw-verb-health
+              openclaw:
+                method: health
+              stdout:
+                - contains: "ok"
+              eventually: 90s
+              retry_interval: 5s
+              context:
+                - runtime
+            - check: the openclaw verb reports the gateway ready via /readyz
+              id: openclaw-verb-ready
+              openclaw:
+                method: ready
+              eventually: 60s
+              retry_interval: 5s
+              context:
+                - runtime
+            - check: the openclaw verb reports the gateway's model status via the in-venue CLI
+              id: openclaw-verb-models
+              openclaw:
+                method: models
+              eventually: 60s
+              retry_interval: 5s
+              context:
+                - runtime
