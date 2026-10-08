@@ -1,3 +1,16 @@
+openclaw:
+    candy:
+        # The OpenClaw family's image. It composes exactly two candies: the gateway
+        # layer this repo owns, and the out-of-process `openclaw:` check verb
+        # (composed so this repo's own bed can author `openclaw:` steps — the
+        # plugin is not compiled into charly). No desktop, no browser, no tool
+        # bundle; a consumer that wants those composes the candies it needs.
+        enabled: true
+        base: cachyos.cachyos
+        candy:
+            - openclaw
+            - '@github.com/opencharly/plugin-openclaw/candy/plugin-openclaw:v2026.281.0939'
+
 openclaw-skill:
     skill:
         name: openclaw
