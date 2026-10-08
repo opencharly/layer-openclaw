@@ -1,4 +1,4 @@
-#  opencharly/openclaw — the OpenClaw family.
+#  opencharly/layer-openclaw — the OpenClaw family (a `layer-<family>` repo).
 #
 #  ONE repo owns the family: the gateway image (box/openclaw), the gateway layer
 #  candy (candy/openclaw, this repo's successor to opencharly/pod-openclaw) and
@@ -7,10 +7,13 @@
 #  opencharly/plugin-openclaw; the image composes that plugin candy so this
 #  repo's bed can author `openclaw:` steps.
 #
+#  The repo NAME carries the class: a product family is a layer-class repo
+#  (`layer-<family>`, the `layer-agentteams` precedent), never a bare name.
+#
 #  The `cachyos` namespace is imported for the box's base and builder, exactly as
 #  distro-cachyos reaches `arch` — one-directional, and the import is what makes
 #  this repo validate and build on its own (a family repo cannot skip it).
-repo: github.com/opencharly/openclaw
+repo: github.com/opencharly/layer-openclaw
 defaults:
     platform:
         - linux/amd64
