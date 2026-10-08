@@ -30,11 +30,16 @@ persists `~/.openclaw`. The gateway's own `/healthz` and `/readyz` endpoints are
 the liveness and readiness probes, and the `openclaw:` check verb
 (`opencharly/plugin-openclaw`) reaches them from the charly host.
 
+The image, the bed and the `cachyos` namespace import land in the immediate-next
+step of this cutover; what is here now is the gateway layer and its skills. See
+`AGENTS.md` for why the import is sequenced last.
+
 ## Layout
 
-- `charly.yml` — the project manifest: the `cachyos` namespace import, the
-  `discover:` tree, the inline `check-openclaw-pod` bed.
-- `box/openclaw/charly.yml` — the gateway image and its `skill:` entity.
+- `charly.yml` — the project manifest: `defaults` and the `discover:` tree today;
+  the `cachyos` import and the inline `check-openclaw-pod` bed in the next step.
+- `box/openclaw/charly.yml` — the gateway image's `skill:` entity (the box lands
+  in the next step, in this same file).
 - `candy/openclaw/charly.yml` + `package.json` — the gateway layer (the npm pin)
   and its `skill:` entity.
 - `.github/workflows/tag-on-merge.yml` — the org tag-on-merge caller.

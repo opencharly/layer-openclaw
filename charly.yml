@@ -1,0 +1,27 @@
+#  opencharly/openclaw — the OpenClaw family.
+#
+#  This repo owns the family: the gateway layer candy (candy/openclaw, the
+#  successor to opencharly/pod-openclaw) and its two skill entities.
+#
+#  The gateway IMAGE (box/openclaw), the disposable R10 bed (check-openclaw-pod)
+#  and the `cachyos` namespace import land in the immediate-next step of the same
+#  cutover — the import is sequenced after the CachyOS family's refs list stops
+#  pinning opencharly/pod-openclaw, whose candy is also named `openclaw` and would
+#  otherwise shadow this repo's local candy. See AGENTS.md.
+#
+#  The `openclaw:` CHECK VERB is a separate concern and stays in its own repo,
+#  opencharly/plugin-openclaw; the image composes that plugin candy so this repo's
+#  bed can author `openclaw:` steps.
+repo: github.com/opencharly/openclaw
+defaults:
+    platform:
+        - linux/amd64
+    tag: auto
+    registry: ghcr.io/opencharly
+    build:
+        - pac
+discover:
+    - path: candy
+      recursive: true
+    - path: box
+      recursive: true
