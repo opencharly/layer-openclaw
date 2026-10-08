@@ -48,7 +48,7 @@ openclaw:
             - check: the in-image Node satisfies openclaw 2026.9.8's engine range (>=24.16.0 <25 OR >=26.1.0; the floor moved at 2026.9.3 and excludes node 22 and 25.x)
               exit_status: 0
               stdout:
-                - matches: "v(24\\.(1[6-9]|[2-9][0-9])\\.|2[6-9]\\.|[3-9][0-9]\\.)"
+                - matches: "v(24\\.(1[6-9]|[2-9][0-9])\\.|26\\.([1-9][0-9]*)\\.|2[7-9]\\.|[3-9][0-9]*\\.|[1-9][0-9]{2,}\\.)"
               command: node --version
             - check: the running gateway's /healthz liveness endpoint responds 200 (OpenClaw 2.0 container probe)
               context:
