@@ -49,6 +49,16 @@ check-openclaw-pod:
         image: openclaw
         disposable: true
         lifecycle: dev
+        # The `openclaw:` verb is served OUT-OF-PROCESS over go-plugin, and charly's loader
+        # perf-scopes plugins to what the resolved work references — a declared-but-unreferenced
+        # candy is never loaded ("declares verb:openclaw, but it was not loaded"). The loader's own
+        # diagnostic names the remedy: "add the candy to the bed's add_candy: so the check runner
+        # passes it as an extra candy ref". Without it the four `openclaw:` steps below fail with
+        # "no go-plugin broker (plugin not served over go-plugin)".
+        # Compiling the plugin into the charly binary instead does NOT work: an in-process plugin
+        # serves no broker, which trades this failure for that one (opencharly/charly#869, withdrawn).
+        add_candy:
+            - '@github.com/opencharly/plugin-openclaw/candy/plugin-openclaw:v2026.281.1647'
         description: Sole build+runtime witness for the OpenClaw family — builds the gateway image on the CachyOS (Arch) base (the npm install of the pinned package, the nodejs/socat/supervisord stack) and deploys it as a disposable pod. Runs the inherited gateway checks — the binary under ~/.npm-global/bin, the pinned version, the engine range, the supervised service, the :18789 TCP reachability and /healthz — plus the plugin-openclaw verb's own live dispatch (health, ready and the in-venue model status against the running gateway).
         plan:
             - check: the openclaw verb reaches the gateway's /healthz liveness endpoint on the running gateway
