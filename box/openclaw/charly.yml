@@ -9,7 +9,7 @@ openclaw:
         base: cachyos.cachyos
         candy:
             - openclaw
-            - '@github.com/opencharly/plugin-openclaw/candy/plugin-openclaw:v2026.281.0939'
+            - '@github.com/opencharly/plugin-openclaw/candy/plugin-openclaw:v2026.281.1647'
 
 openclaw-skill:
     skill:
