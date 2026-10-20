@@ -139,6 +139,6 @@ openclaw-layer-skill:
             ## Related
 
             - `/charly-openclaw:openclaw` — the box that composes this layer
-            - `/charly-check:openclaw` — the `openclaw:` check verb, served by `opencharly/plugin-openclaw`
+            - `/charly-check:openclaw-cmd` — the `openclaw:` check verb, served by `opencharly/plugin-openclaw`
             - `/charly-coder:nodejs`, `/charly-infrastructure:socat`, `/charly-infrastructure:supervisord` — this layer's dependencies
 
