@@ -75,3 +75,8 @@ openclaw-layer-skill:
         name: openclaw-layer
         family: openclaw
         owner: openclaw
+        category: images
+        triggers:
+            - "the OpenClaw gateway candy / the npm `openclaw@2026.9.8` pin and its node engine floor"
+            - "the supervised `openclaw` service on :18789 and its `data` volume at `~/.openclaw`"
+            - "the loopback-bound gateway and its socat port relay"

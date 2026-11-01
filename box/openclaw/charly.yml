@@ -16,3 +16,8 @@ openclaw-skill:
         name: openclaw
         family: openclaw
         owner: openclaw
+        category: images
+        triggers:
+            - "the headless OpenClaw gateway image / the `openclaw` box on the CachyOS base"
+            - "deploying OpenClaw with no desktop or browser"
+            - "the `check-openclaw-pod` bed / probing a running gateway from a plan"
