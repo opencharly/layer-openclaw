@@ -2,6 +2,6 @@
   "name": "openclaw-npm",
   "version": "1.0.0",
   "dependencies": {
-    "openclaw": "2026.9.8"
+    "openclaw": "2026.11.3"
   }
 }
