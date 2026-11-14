@@ -27,13 +27,22 @@ defaults:
         npm: cachyos.arch.arch-builder
         pixi: cachyos.arch.arch-builder
 import:
-    # Pinned to the tag that dropped the retired openclaw pins from the CachyOS
-    # refs list (distro-cachyos v2026.281.1001). Those pins kept pod-openclaw's
-    # `openclaw` candy inside this project's closure, and a remote candy of that
-    # name shadows this repo's local one — the resolver fails closed with
+    # The CachyOS base. The floor is the tag that dropped the retired openclaw pins
+    # from the CachyOS refs list (distro-cachyos v2026.281.1001): those pins kept
+    # pod-openclaw's `openclaw` candy inside this project's closure, and a remote candy
+    # of that name shadows this repo's local one — the resolver fails closed with
     # `local candy "openclaw" shadows remote candy "github.com/opencharly/pod-openclaw"`.
-    # An earlier tag reproduces that error; this one is measured both ways.
-    - cachyos: '@github.com/opencharly/distro-cachyos:v2026.281.1001'
+    # An earlier tag reproduces that error; the floor is measured both ways.
+    #
+    # It is NOT the ceiling. v2026.281.1001's `box/crabbox-e2e` still pins
+    # `pod-crabbox:v2026.274.0652`, a tag that no longer exists in that repo, so
+    # resolving this project's closure at that tag fails. That is what broke the
+    # marketplace corpus regeneration org-wide (opencharly/marketplace#613: every
+    # generate and the daily refresh died on that ref, 2026-11-10..14): the corpus
+    # pins this repo, this repo pinned that base. v2026.318.1213's `box/crabbox-e2e`
+    # composes `pod-crabbox-coordinator:v2026.293.1003` instead — the fix that landed
+    # in distro-cachyos 2026.293.1743 — so the closure resolves.
+    - cachyos: '@github.com/opencharly/distro-cachyos:v2026.318.1213'
 discover:
     - path: candy
       recursive: true
