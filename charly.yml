@@ -58,7 +58,11 @@ check-openclaw-pod:
         # Compiling the plugin into the charly binary instead does NOT work: an in-process plugin
         # serves no broker, which trades this failure for that one (opencharly/charly#869, withdrawn).
         add_candy:
-            - '@github.com/opencharly/plugin-openclaw/candy/plugin-openclaw:v2026.281.1647'
+            # Same tag the box composes: the bed's ref and box/openclaw's ref describe ONE
+            # candy in one `box=openclaw` scope, so holding this one a tag behind made the
+            # resolver report "resolved to multiple git tags with differing content" on
+            # every run. Keep the two refs equal.
+            - '@github.com/opencharly/plugin-openclaw/candy/plugin-openclaw:v2026.293.0358'
         description: Sole build+runtime witness for the OpenClaw family — builds the gateway image on the CachyOS (Arch) base (the npm install of the pinned package, the nodejs/socat/supervisord stack) and deploys it as a disposable pod. Runs the inherited gateway checks — the binary under ~/.npm-global/bin, the pinned version, the engine range, the supervised service, the :18789 TCP reachability and /healthz — plus the plugin-openclaw verb's own live dispatch (health, ready and the in-venue model status against the running gateway).
         plan:
             - check: the openclaw verb reaches the gateway's /healthz liveness endpoint on the running gateway
