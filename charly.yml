@@ -27,22 +27,32 @@ defaults:
         npm: cachyos.arch.arch-builder
         pixi: cachyos.arch.arch-builder
 import:
-    # The CachyOS base. The floor is the tag that dropped the retired openclaw pins
-    # from the CachyOS refs list (distro-cachyos v2026.281.1001): those pins kept
-    # pod-openclaw's `openclaw` candy inside this project's closure, and a remote candy
-    # of that name shadows this repo's local one — the resolver fails closed with
-    # `local candy "openclaw" shadows remote candy "github.com/opencharly/pod-openclaw"`.
-    # An earlier tag reproduces that error; the floor is measured both ways.
+    # The CachyOS base. Three constraints hold this pin where it is, and the pin is the
+    # NEWEST tag that satisfies all three:
     #
-    # It is NOT the ceiling. v2026.281.1001's `box/crabbox-e2e` still pins
-    # `pod-crabbox:v2026.274.0652`, a tag that no longer exists in that repo, so
-    # resolving this project's closure at that tag fails. That is what broke the
-    # marketplace corpus regeneration org-wide (opencharly/marketplace#613: every
-    # generate and the daily refresh died on that ref, 2026-11-10..14): the corpus
-    # pins this repo, this repo pinned that base. v2026.318.1213's `box/crabbox-e2e`
-    # composes `pod-crabbox-coordinator:v2026.293.1003` instead — the fix that landed
-    # in distro-cachyos 2026.293.1743 — so the closure resolves.
-    - cachyos: '@github.com/opencharly/distro-cachyos:v2026.318.1213'
+    # 1. FLOOR — no retired openclaw pins in the base's refs list (distro-cachyos
+    #    v2026.281.1001 dropped them). Those pins kept pod-openclaw's `openclaw` candy inside
+    #    this project's closure, and a remote candy of that name shadows this repo's local
+    #    one: the resolver fails closed with `local candy "openclaw" shadows remote candy
+    #    "github.com/opencharly/pod-openclaw"`. An earlier tag reproduces that error.
+    #
+    # 2. RESOLVABILITY — the base's `box/crabbox-e2e` must pin a pod-crabbox release that
+    #    still exists. v2026.281.1001 pinned `pod-crabbox:v2026.274.0652`, which does not, so
+    #    resolving this project's closure failed there and took the org's marketplace corpus
+    #    regeneration with it (opencharly/marketplace#613). distro-cachyos v2026.293.1743
+    #    replaced that pin; every later tag carries the replacement.
+    #
+    # 3. LOADABILITY AND BUILDABILITY — the base's own imports must be new enough that this
+    #    project LOADS under the charly binary the umbrella pins, and that the image built
+    #    on it installs its skill bodies. At v2026.318.1213 both failed: the loader refused
+    #    `cachyos.arch.check-arch-vm` (a deploy-level bed member with no `host:`), and the
+    #    build died on the retired `COPY --from=<carrier> .agents/skills`. distro-cachyos
+    #    v2026.325.1412 (opencharly/distro-cachyos#221) advances its own `arch`/`podcdi`
+    #    imports to distro-arch v2026.325.1112 / pod-cdi v2026.325.1329 and satisfies this.
+    #
+    # v2026.325.1412 is the current tag meeting all three; moving it forward means re-checking
+    # 1-3 on the new tag, not just that it exists (opencharly/layer-openclaw#14).
+    - cachyos: '@github.com/opencharly/distro-cachyos:v2026.325.1412'
 discover:
     - path: candy
       recursive: true
