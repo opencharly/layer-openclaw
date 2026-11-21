@@ -42,7 +42,7 @@ import:
     # pins this repo, this repo pinned that base. v2026.318.1213's `box/crabbox-e2e`
     # composes `pod-crabbox-coordinator:v2026.293.1003` instead — the fix that landed
     # in distro-cachyos 2026.293.1743 — so the closure resolves.
-    - cachyos: '@github.com/opencharly/distro-cachyos:v2026.324.2235'
+    - cachyos: '@github.com/opencharly/distro-cachyos:v2026.325.1412'
 discover:
     - path: candy
       recursive: true
